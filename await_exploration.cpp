@@ -1,6 +1,38 @@
 #include <coroutine>
 #include <iostream>
 
+template <typename T>
+struct AwaitableType {
+  AwaitableType(T future) : m_future{std::move(future)} {}
+  bool await_ready() {
+    std::clog << "await_ready\n";
+    return true;
+  }
+
+  void await_suspend(std::coroutine_handle<> h) {
+    static_cast<void>(h);
+    std::clog << "await_suspend\n";
+  }
+
+  typename T::return_type await_resume() {
+    std::clog << "await_resume\n";
+    return m_future.getResult();
+  }
+
+  T m_future;
+};
+
+struct ReturnValue {
+  using return_type = int;
+  return_type getResult() { return value; }
+  AwaitableType<ReturnValue> operator co_await() noexcept {
+    std::clog << "operator co_await\n";
+    return AwaitableType{*this};
+  }
+
+  int value;
+};
+
 struct MinimalCoro {
   struct promise_type {
     MinimalCoro get_return_object() {
@@ -9,31 +41,20 @@ struct MinimalCoro {
     std::suspend_always initial_suspend() noexcept { return {}; }
     std::suspend_always final_suspend() noexcept { return {}; }
     void unhandled_exception() {}
+
+    // AwaitableType await_transform(ReturnValue) { return {}; }
   };
 
   std::coroutine_handle<promise_type> h_;
 };
 
-struct AwaitableType {
-  bool await_ready() {
-    std::clog << "await_ready\n";
-    return false;
-  }
-
-  void await_suspend(std::coroutine_handle<> h) {
-    static_cast<void>(h);
-    std::clog << "await_suspend\n";
-  }
-
-  void await_resume() { std::clog << "await_resume\n"; }
-};
-
-AwaitableType foo() { return {}; }
+ReturnValue foo(int x) { return {.value = x}; }
 
 MinimalCoro func() {
   std::clog << "before\n";
-  auto res = co_await foo();
+  int res = co_await foo(42);
   std::clog << typeid(res).name() << '\n';
+  std::clog << "we've got: " << res << '\n';
   std::clog << "after\n";
 }
 
