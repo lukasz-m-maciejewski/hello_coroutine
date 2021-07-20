@@ -1,5 +1,6 @@
 #include <coroutine>
-#include <iostream>
+
+namespace gucicoro {
 
 template <typename T>
 struct Promise;
@@ -56,4 +57,4 @@ T Generator<T>::next() {
   }
 }
 
-// End general purpose library
+}  // namespace gucicoro

@@ -16,3 +16,7 @@ target_compile_options(minimal_coroutine_example PUBLIC -fcoroutines)
 add_executable(await_exploration await_exploration.cpp)
 target_compile_features(await_exploration PUBLIC cxx_std_20)
 target_compile_options(await_exploration PUBLIC -fcoroutines)
+
+add_executable(fibonacci fibonacci.cpp)
+target_compile_features(fibonacci PUBLIC cxx_std_20)
+target_compile_options(fibonacci PUBLIC -fcoroutines)

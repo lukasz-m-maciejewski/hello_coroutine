@@ -1,3 +1,4 @@
+#include <iostream>
 #include "coroutine.hpp"
 
 bool isPrime(std::int64_t n) {
@@ -12,7 +13,7 @@ bool isPrime(std::int64_t n) {
   return true;
 }
 
-Generator<std::int64_t> getPrimes() {
+gucicoro::Generator<std::int64_t> getPrimes() {
   std::int64_t num = 0;
   while (true) {
     while (!isPrime(num)) {
@@ -25,7 +26,7 @@ Generator<std::int64_t> getPrimes() {
 }
 
 int main() {
-  Generator<int64_t> primes = getPrimes();
+  gucicoro::Generator<int64_t> primes = getPrimes();
   std::cout << primes.next();
   for (int i = 0; i < 1000000; ++i) {
     std::cout << ", " << primes.next();
